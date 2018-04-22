@@ -14,7 +14,7 @@ var defaults = {
     height: 500
 };
 
-function main(o, data, DOMElt) {
+function main(o, data, DOMElt, useCentFormatter) {
   var root,
       opts = $.extend(true, {}, defaults, o),
       formatNumber = d3.format(opts.format),
@@ -150,7 +150,8 @@ function main(o, data, DOMElt) {
         .attr("class", "child")
         .call(rect)
       .append("title")
-        .text(function(d) { return d.key + " (" + formatNumber(d.value) + ")"; });
+        .text(function(d) { return d.key + " (" + 
+        useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value) + ")"; });
     children.append("text")
         .attr("class", "ctext")
         .text(function(d) { return d.key; })
@@ -168,7 +169,7 @@ function main(o, data, DOMElt) {
         .text(function(d) { return d.key; });
     t.append("tspan")
         .attr("dy", "1.0em")
-        .text(function(d) { return formatNumber(d.value); });
+        .text(function(d) { return useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value); });
     t.call(text);
 
     g.selectAll("rect")
@@ -236,8 +237,8 @@ function main(o, data, DOMElt) {
 
   function name(d) {
     return d.parent
-        ? name(d.parent) + " / " + d.key + " (" + formatNumber(d.value) + ")"
-        : d.key + " (" + formatNumber(d.value) + ")";
+        ? name(d.parent) + " / " + d.key + " (" + useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value) + ")"
+        : d.key + " (" + useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value) + ")";
   }
 }
 
@@ -246,7 +247,7 @@ if (window.location.hash === "") {
         if (!err) {
             console.log(res);
             var data = d3.nest().key(function(d) { return d.key; }).key(function(d) { return d.Category; }).key(function(d) { return d.Description; }).entries(res);
-            main({title: "Student Activity Fee Expenses"}, {key: "Fees", values: data}, '#total-cost-chart');
+            main({title: "Student Activity Fee Expenses"}, {key: "Fees", values: data}, '#total-cost-chart', false);
         }
     });
 }
@@ -256,7 +257,7 @@ if (window.location.hash === "") {
         if (!err) {
             console.log(res);
             var data = d3.nest().key(function(d) { return d.key; }).key(function(d) { return d.Category; }).key(function(d) { return d.Description; }).entries(res);
-            main({title: "Expenses per Student"}, {key: "Fees", values: data}, '#average-cost-chart');
+            main({title: "Expenses per Student"}, {key: "Fees", values: data}, '#average-cost-chart', true);
         }
     });
 }
