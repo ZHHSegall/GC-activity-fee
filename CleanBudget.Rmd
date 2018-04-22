@@ -1,0 +1,147 @@
+---
+title: "Untitled"
+author: "LaAnna Farnelli, Eli Most, Zachary Segall"
+date: "4/21/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(dplyr)
+library(tidyr)
+```
+
+```{r Import}
+SGA_Budget_Report_12_15_17 <- read_excel("~/HackGC/SGA Budget Report 12-15-17.xlsx", 
+    skip = 7)
+SGA_Budget_Report_8_11_17 <- read_excel("~/HackGC/SGA Budget Report 8-11-17 - Copy.xlsx", 
+    skip = 8)
+# View(SGA_Budget_Report_12_15_17)
+```
+
+```{r rename-columns}
+names(SGA_Budget_Report_12_15_17)[names(SGA_Budget_Report_12_15_17) == 'X__1'] <- 'Category'
+```
+
+```{r drop-data}
+SGA_Budget_Report_12_15_17 <- filter(SGA_Budget_Report_12_15_17, !is.na(Category))
+SGA_Budget_Report_12_15_17 <- SGA_Budget_Report_12_15_17[, names(SGA_Budget_Report_12_15_17) != 'Expenses']
+```
+
+```{r split-columns}
+SGA_Budget_Report_12_15_17 <- separate(SGA_Budget_Report_12_15_17, sep=':', Category, c("Committee", "Expense"))
+SGA_Budget_Report_12_15_17$Committee <- trimws(SGA_Budget_Report_12_15_17$Committee)
+SGA_Budget_Report_12_15_17$Expense <- trimws(SGA_Budget_Report_12_15_17$Expense)
+```
+
+```{r SGA-budget-Cleaner}
+clean_budget <- function(SGA_Budget_DF)
+{
+  names(SGA_Budget_DF)[names(SGA_Budget_DF) == 'X__1'] <- 'Category'
+  SGA_Budget_DF <- filter(SGA_Budget_DF, !is.na(Category))
+  SGA_Budget_DF <- SGA_Budget_DF[, names(SGA_Budget_DF) != 'Expenses']
+  SGA_Budget_DF <- separate(SGA_Budget_DF, sep=':', Category, c("Commitee", "Expense"))
+}
+```
+
+
+```{r clean-budgets}
+SGA_Budget_Report_8_11_17 <- clean_budget(SGA_Budget_Report_8_11_17)
+```
+
+```{r write-budgets}
+write_json <- function(df, path, df_type = "rows", raw_type = "mongo"){
+  require(readr)
+  require(jsonlite)
+  df %>% 
+     toJSON(dataframe = df_type, raw = raw_type) %>%
+     write_lines(path)
+  df
+}
+```
+
+```{r read-commitee-data}
+SGA_ACE_F17 <- read_excel("~/HackGC/SGA ACE F17.xls")
+SGA_Concerts_F17 <- read_excel("~/HackGC/concertsexpenses.xlsx")
+SGA_SPC_F17 <- read_excel("~/HackGC/Copy of SGA SPC F17.xls", 
+    sheet = "Spending")
+SGA_Cabinet_F17 <- read_excel("~/HackGC/Cabinet Expenses F17.xls", sheet = "Comprehensive Page")
+```
+
+```{r clean-commitee-data}
+SGA_ACE_F17_clean <- select(SGA_ACE_F17,Category, Event, Spent)
+colnames(SGA_ACE_F17_clean)[2] <- "Description"
+SGA_ACE_F17_clean <- filter(SGA_ACE_F17_clean, !is.na(Description))
+SGA_ACE_F17_clean$Committee <- "ALL CAMPUS EVENTS"
+SGA_ACE_F17_clean <- select(SGA_ACE_F17_clean, Committee, Category, Description, Spent)
+
+SGA_Concerts_F17_clean <- select(SGA_Concerts_F17, Description, Performer, Spent)
+SGA_Concerts_F17_clean$Committee <- "CONCERTS"
+colnames(SGA_Concerts_F17_clean)[2] <- "Description"
+colnames(SGA_Concerts_F17_clean)[1] <- "Category"
+SGA_Concerts_F17_clean <- select(SGA_Concerts_F17_clean, Committee, Category, Description, Spent)
+
+SGA_SPC_F17_clean <- select(SGA_SPC_F17, "Student Group", "Student Group Activity", Spent)
+SGA_SPC_F17_clean <- filter(SGA_SPC_F17_clean, !is.na(Spent))
+colnames(SGA_SPC_F17_clean)[1] <- "Category"
+colnames(SGA_SPC_F17_clean)[2] <- "Description"
+SGA_SPC_F17_clean$Committee <- "STUDENT PROGRAMMING"
+SGA_SPC_F17_clean <- select(SGA_SPC_F17_clean, Committee, Category, Description, Spent)
+
+SGA_Cabinet_F17_clean <- select(SGA_Cabinet_F17, Group, Category, Description, Spent)
+SGA_Cabinet_F17_clean <- filter(SGA_Cabinet_F17_clean, !is.na(Spent))
+SGA_Cabinet_F17_clean$Committee <- ifelse(SGA_Cabinet_F17_clean$Group == "SGA Cabinet",
+                                      "SGA CABINET", 
+                                      ifelse(SGA_Cabinet_F17_clean$Group == "Elections",
+                                         "ELECTIONS",
+                                         ifelse(SGA_Cabinet_F17_clean$Group == "SCC", 
+                                            "STUDENT CURRICULUM COMMITTEE",
+                                            ifelse(SGA_Cabinet_F17_clean$Group == "ACESS",
+                                                   "ALL CAMPUS EVENTS",
+                                                    SGA_Cabinet_F17_clean$Group))))
+SGA_Cabinet_F17_clean <- select(SGA_Cabinet_F17_clean, Committee, Category, Description, Spent)
+```
+
+```{r extracting-wages}
+SGA_Wages_F17 <- select(SGA_Budget_Report_12_15_17, Committee, Expense, Actual)
+# SGA_Wages_F17 <- separate(SGA_Wages_F17, sep=" ", Expense, c("Throwaway", "Description"))
+SGA_Wages_F17 <- filter(SGA_Wages_F17, SGA_Wages_F17$Expense == "STUDENT WAGES" | SGA_Wages_F17$Expense =="CASUAL/TEMPORARY WAGES" | 
+                          SGA_Wages_F17$Committee == "COMPETIVE SPORTS CLUBS" | SGA_Wages_F17$Committee == "LIBERAL ARTS IN PRISON" | SGA_Wages_F17$Committee == "DIVERSITY & OUTREACH" | SGA_Wages_F17$Committee == "COMMUNITY SERVICE" | SGA_Wages_F17$Committee == "STUDENT INITIATIVES FUND" | SGA_Wages_F17$Committee == "GREEN FUND COMMITTEE")
+colnames(SGA_Wages_F17) <- c("Committee", "Category", "Spent")
+SGA_Wages_F17$Category <- ifelse(SGA_Wages_F17$Category == "CASUAL/TEMPORARY WAGES" | SGA_Wages_F17$Category == "STUDENT WAGES", 
+                                 "STUDENT WAGES",
+                                 SGA_Wages_F17$Committee)
+SGA_Wages_F17 <- rbind(SGA_Wages_F17, c("SPARC", "SPARC", as.numeric(115200)))
+SGA_Wages_F17$Description <- SGA_Wages_F17$Category
+SGA_Wages_F17$Spent <- as.numeric(SGA_Wages_F17$Spent)
+```
+
+
+```{r merging-committee-data}
+Total_Fees <- 345600
+SGA_ALL_F17_Clean <- bind_rows(SGA_ACE_F17_clean, SGA_Concerts_F17_clean, SGA_SPC_F17_clean, SGA_Cabinet_F17_clean, SGA_Wages_F17)
+colnames(SGA_ALL_F17_Clean)[1] <- "key"
+colnames(SGA_ALL_F17_Clean)[4] <- "value"
+SGA_ALL_F17_Clean$value <- as.integer(SGA_ALL_F17_Clean$value)
+SGA_ALL_F17_Clean <- rbind(SGA_ALL_F17_Clean, c("Unspent", "Unspent", "Unspent", Total_Fees - sum(SGA_ALL_F17_Clean$value)))
+SGA_ALL_F17_Clean$value <- as.integer(SGA_ALL_F17_Clean$value)
+```
+
+```{r your-money}
+Student_Fee <- 22500
+SGA_ALL_PERSONAL_F17_Clean <- SGA_ALL_F17_Clean
+SGA_ALL_PERSONAL_F17_Clean$value <- as.integer((SGA_ALL_PERSONAL_F17_Clean$value / Total_Fees) * Student_Fee)
+```
+
+```{r write-committee-data}
+write_json(SGA_ALL_F17_Clean, "~/HackGC/AllExpensesF17.json")
+write_json(SGA_ALL_PERSONAL_F17_Clean, "~/HackGC/AllExpensesByStudentF17.json")
+write_csv(SGA_ALL_F17_Clean, "~/HackGC/AllExpensesF17.csv")
+```
+
+
+
+
