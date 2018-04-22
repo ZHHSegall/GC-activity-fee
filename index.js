@@ -236,9 +236,8 @@ function main(o, data, DOMElt, useCentFormatter) {
   }
 
   function name(d) {
-    return d.parent
-        ? name(d.parent) + " / " + d.key + " (" + useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value) + ")"
-        : d.key + " (" + useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value / 100) : formatNumber(d.value) + ")";
+    var string = useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value);
+    return d.parent ? name(d.parent) + " / " + d.key + " (" + string + ")" : d.key + " (" + string + ")";
   }
 }
 
