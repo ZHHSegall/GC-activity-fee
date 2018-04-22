@@ -151,7 +151,7 @@ function main(o, data, DOMElt, useCentFormatter) {
         .call(rect)
       .append("title")
         .text(function(d) { return d.key + " (" + 
-        useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value) + ")"; });
+        useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value / 100) : formatNumber(d.value) + ")"; });
     children.append("text")
         .attr("class", "ctext")
         .text(function(d) { return d.key; })
@@ -169,7 +169,7 @@ function main(o, data, DOMElt, useCentFormatter) {
         .text(function(d) { return d.key; });
     t.append("tspan")
         .attr("dy", "1.0em")
-        .text(function(d) { return useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value); });
+        .text(function(d) { return useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value / 100) : formatNumber(d.value); });
     t.call(text);
 
     g.selectAll("rect")
@@ -238,7 +238,7 @@ function main(o, data, DOMElt, useCentFormatter) {
   function name(d) {
     return d.parent
         ? name(d.parent) + " / " + d.key + " (" + useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value) + ")"
-        : d.key + " (" + useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value) : formatNumber(d.value) + ")";
+        : d.key + " (" + useCentFormatter ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'USD' }).format(d.value / 100) : formatNumber(d.value) + ")";
   }
 }
 
