@@ -69,6 +69,7 @@ rect.parent {
 
 <!-- Bootstrap CSS -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+<link rel="stylesheet" href="clean-blog.css"/>
 
 </head>
 
@@ -83,13 +84,30 @@ rect.parent {
         <div class="col-lg-12">
         <h1 class="mt-4">How are student activity fees spent?</h1>
 
+        <!-- Author -->
+        <p class="lead">
+            by
+            Zachary Segall, LaAnna Farnelli and Eli Most
+        </p>
+
         <p>As part of HackGC, we wanted to look into how Grinnell's student activity fees are allocated and used each semester. 
             We were concerned about the growth of this fee and the increased burden it may place on students.
             We also wanted to give a students a clearer picture of how their money was spent so that students could become more active members of the community and take advantage of the resources available to them.
             To do this, we got ahold of last semester's activity fee budgeting. 
             We found that, as students, there were a lot of ways in which these funds were used in ways we did not know about.</p>
 
-        <div id="chart"></div>
+        <p> Below we made a visualization of where the money from the student activity fees goes.
+            The graph is interactive, so you can click the different boxes to see how the expenses are broken down by category.
+        </p>
+        <div id="total-cost-chart"></div>
+
+        <p> Another interesting angle to look at is how much money you individually contribute to each event. 
+            The student activity fee was $225 for the fall 2017 semester.
+            Below we've averaged the fees by the per-student contribution to show how each student conribution contributes to the services provided by the activity fee.</p>
+        <div id="average-cost-chart"></div>
+
+        <p> We hope you will find something you did not know about how money gets spent around campus. 
+            Would you be willing to give something up in order to prevent the activity fee from growing?</p>
         </div>
 
     </div>
@@ -105,7 +123,6 @@ rect.parent {
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
-
 
 </body>
 </html>

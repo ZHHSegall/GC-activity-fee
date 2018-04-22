@@ -14,7 +14,7 @@ var defaults = {
     height: 500
 };
 
-function main(o, data) {
+function main(o, data, DOMElt) {
   var root,
       opts = $.extend(true, {}, defaults, o),
       formatNumber = d3.format(opts.format),
@@ -22,7 +22,7 @@ function main(o, data) {
       margin = opts.margin,
       theight = 36 + 16;
 
-  $('#chart').width(opts.width).height(opts.height);
+  $(DOMElt).width(opts.width).height(opts.height);
   var width = opts.width - margin.left - margin.right,
       height = opts.height - margin.top - margin.bottom - theight,
       transitioning;
@@ -43,7 +43,7 @@ function main(o, data) {
       .ratio(height / width * 0.5 * (1 + Math.sqrt(5)))
       .round(false);
   
-  var svg = d3.select("#chart").append("svg")
+  var svg = d3.select(DOMElt).append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.bottom + margin.top)
       .style("margin-left", -margin.left + "px")
@@ -66,7 +66,7 @@ function main(o, data) {
       .attr("dy", ".75em");
 
   if (opts.title) {
-    $("#chart").prepend("<p class='title'>" + opts.title + "</p>");
+    $(DOMElt).prepend("<p class='title'>" + opts.title + "</p>");
   }
   if (data instanceof Array) {
     root = { key: rname, values: data };
@@ -246,7 +246,17 @@ if (window.location.hash === "") {
         if (!err) {
             console.log(res);
             var data = d3.nest().key(function(d) { return d.key; }).key(function(d) { return d.Category; }).key(function(d) { return d.Description; }).entries(res);
-            main({title: "Student Activity Fee Expenses"}, {key: "Fees", values: data});
+            main({title: "Student Activity Fee Expenses"}, {key: "Fees", values: data}, '#total-cost-chart');
+        }
+    });
+}
+
+if (window.location.hash === "") {
+    d3.json("AverageExpensesF17.json", function(err, res) {
+        if (!err) {
+            console.log(res);
+            var data = d3.nest().key(function(d) { return d.key; }).key(function(d) { return d.Category; }).key(function(d) { return d.Description; }).entries(res);
+            main({title: "Expenses per Student"}, {key: "Fees", values: data}, '#average-cost-chart');
         }
     });
 }
